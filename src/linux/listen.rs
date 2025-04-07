@@ -1,22 +1,21 @@
-extern crate libc;
-extern crate x11;
-use crate::linux::common::{convert, FALSE, KEYBOARD};
-use crate::linux::keyboard::Keyboard;
+//extern crate libc;
+//extern crate x11;
+//use crate::linux::common::{FALSE, KEYBOARD};
+//use crate::linux::keyboard::Keyboard;
 use crate::rdev::{Event, ListenError};
-use std::convert::TryInto;
-use std::ffi::CStr;
-use std::os::raw::{c_char, c_int, c_uchar, c_uint, c_ulong};
-use std::ptr::null;
-use x11::xlib;
-use x11::xrecord;
+//use x11::xlib;
+//use x11::xrecord;
 
-static mut RECORD_ALL_CLIENTS: c_ulong = xrecord::XRecordAllClients;
+//static mut RECORD_ALL_CLIENTS: c_ulong = xrecord::XRecordAllClients;
 static mut GLOBAL_CALLBACK: Option<Box<dyn FnMut(Event)>> = None;
 
 pub fn listen<T>(callback: T) -> Result<(), ListenError>
 where
     T: FnMut(Event) + 'static,
 {
+    todo!()
+}
+/*
     let keyboard = Keyboard::new().ok_or(ListenError::KeyboardError)?;
 
     unsafe {
@@ -64,6 +63,7 @@ where
     }
     Ok(())
 }
+*/
 
 // No idea how to do that properly relevant doc lives here:
 // https://www.x.org/releases/X11R7.7/doc/libXtst/recordlib.html#Datum_Flags
@@ -85,6 +85,7 @@ struct XRecordDatum {
     state: u16,
 }
 
+/*
 unsafe extern "C" fn record_callback(
     _null: *mut c_char,
     raw_data: *mut xrecord::XRecordInterceptData,
@@ -112,3 +113,4 @@ unsafe extern "C" fn record_callback(
     }
     xrecord::XRecordFreeData(raw_data);
 }
+*/

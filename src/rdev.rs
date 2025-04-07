@@ -260,7 +260,7 @@ pub enum EventType {
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub struct Event {
     pub time: SystemTime,
-    pub name: Option<String>,
+    pub name: Option<&'static str>,
     pub event_type: EventType,
 }
 

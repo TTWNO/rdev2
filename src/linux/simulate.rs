@@ -1,12 +1,7 @@
-use crate::linux::common::{FALSE, TRUE};
-use crate::linux::keycodes::code_from_key;
-use crate::rdev::{Button, EventType, SimulateError};
-use std::convert::TryInto;
-use std::os::raw::c_int;
-use std::ptr::null;
-use x11::xlib;
-use x11::xtest;
+//use x11::xlib;
+//use x11::xtest;
 
+/*
 unsafe fn send_native(event_type: &EventType, display: *mut xlib::Display) -> Option<()> {
     let res = match event_type {
         EventType::KeyPress(key) => {
@@ -97,3 +92,4 @@ pub fn simulate(event_type: &EventType) -> Result<(), SimulateError> {
         }
     }
 }
+*/

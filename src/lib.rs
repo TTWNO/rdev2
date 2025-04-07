@@ -233,9 +233,7 @@ use crate::macos::{display_size as _display_size, listen as _listen, simulate as
 #[cfg(target_os = "linux")]
 mod linux;
 #[cfg(target_os = "linux")]
-pub use crate::linux::Keyboard;
-#[cfg(target_os = "linux")]
-use crate::linux::{display_size as _display_size, listen as _listen, simulate as _simulate};
+use crate::linux::{display_size as _display_size, listen as _listen};
 
 #[cfg(target_os = "windows")]
 mod windows;
@@ -305,7 +303,8 @@ where
 /// }
 /// ```
 pub fn simulate(event_type: &EventType) -> Result<(), SimulateError> {
-    _simulate(event_type)
+    todo!()
+    //_simulate(event_type)
 }
 
 /// Returns the size in pixels of the main screen.
@@ -357,7 +356,7 @@ pub use crate::windows::grab as _grab;
 /// }
 /// ```
 #[cfg(feature = "unstable_grab")]
-pub fn grab<T, S>(callback: T, mut state: S) -> Result<(), GrabError>
+pub fn grab<T, S>(callback: T, state: S) -> Result<(), GrabError>
 where
     T: Fn(Event, &mut S) -> Option<Event> + 'static,
 {

@@ -1,18 +1,14 @@
-use crate::linux::keyboard::Keyboard;
-use crate::linux::keycodes::key_from_code;
-use crate::rdev::{Button, Event, EventType, KeyboardState};
-use std::convert::TryInto;
-use std::os::raw::{c_int, c_uchar, c_uint};
-use std::ptr::null;
-use std::time::SystemTime;
-use x11::xlib;
+//use crate::linux::keyboard::Keyboard;
+use std::os::raw::c_int;
+//use x11::xlib;
 
 pub const TRUE: c_int = 1;
 pub const FALSE: c_int = 0;
 
 // A global for the callbacks.
-pub static mut KEYBOARD: Option<Keyboard> = None;
+//pub static mut KEYBOARD: Option<Keyboard> = None;
 
+/*
 pub fn convert_event(code: c_uchar, type_: c_int, x: f64, y: f64) -> Option<EventType> {
     match type_ {
         xlib::KeyPress => {
@@ -136,3 +132,4 @@ impl Drop for Display {
         }
     }
 }
+*/

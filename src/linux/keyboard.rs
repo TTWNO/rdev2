@@ -1,10 +1,5 @@
-extern crate x11;
-use crate::linux::keycodes::code_from_key;
-use crate::rdev::{EventType, Key, KeyboardState};
-use std::ffi::CString;
-use std::os::raw::{c_char, c_int, c_uint, c_ulong, c_void};
-use std::ptr::{null, null_mut, NonNull};
-use x11::xlib;
+//extern crate x11;
+//use x11::xlib;
 
 #[derive(Debug)]
 struct State {
@@ -20,6 +15,7 @@ struct State {
 // from xEvent data received via xrecord.
 // Other source of inspiration https://gist.github.com/baines/5a49f1334281b2685af5dcae81a6fa8a
 // Needed xproto crate as x11 does not implement _xevent.
+/*
 impl State {
     fn new() -> State {
         State {
@@ -234,6 +230,7 @@ impl KeyboardState for Keyboard {
         self.state = State::new();
     }
 }
+*/
 
 #[cfg(test)]
 mod tests {

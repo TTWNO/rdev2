@@ -1,9 +1,9 @@
-use crate::linux::common::Display;
-use crate::linux::keyboard::Keyboard;
-use crate::rdev::{Button, Event, EventType, GrabError, Key, KeyboardState};
+//use crate::linux::common::Display;
+//use crate::linux::keyboard::Keyboard;
+use crate::rdev::{Button, Event, EventType, GrabError, Key};
 use epoll::ControlOptions::{EPOLL_CTL_ADD, EPOLL_CTL_DEL};
 use evdev_rs::{
-    enums::{EventCode, EV_KEY, EV_REL},
+    enums::{EventCode, EV_KEY},
     Device, InputEvent, UInputDevice,
 };
 use inotify::{Inotify, WatchMask};
@@ -188,13 +188,7 @@ convert_keys!(
     KEY_BACKSLASH, IntlBackslash
 );
 
-fn evdev_event_to_rdev_event(
-    event: &InputEvent,
-    x: &mut f64,
-    y: &mut f64,
-    w: f64,
-    h: f64,
-) -> Option<EventType> {
+fn evdev_event_to_rdev_event(event: &InputEvent) -> Option<EventType> {
     match &event.event_code {
         EventCode::EV_KEY(key) => {
             if let Some(button) = evdev_key_to_rdev_button(key) {
@@ -214,40 +208,6 @@ fn evdev_event_to_rdev_event(
                 None
             }
         }
-        EventCode::EV_REL(mouse) => match mouse {
-            EV_REL::REL_X => {
-                let dx = event.value as f64;
-                *x += dx;
-                if *x < 0.0 {
-                    *x = 0.0;
-                }
-                if *x > w {
-                    *x = w;
-                }
-                Some(EventType::MouseMove { x: *x, y: *y })
-            }
-            EV_REL::REL_Y => {
-                let dy = event.value as f64;
-                *y += dy;
-                if *y < 0.0 {
-                    *y = 0.0;
-                }
-                if *y > h {
-                    *y = h;
-                }
-                Some(EventType::MouseMove { x: *x, y: *y })
-            }
-            EV_REL::REL_HWHEEL => Some(EventType::Wheel {
-                delta_x: event.value.into(),
-                delta_y: 0,
-            }),
-            EV_REL::REL_WHEEL => Some(EventType::Wheel {
-                delta_x: 0,
-                delta_y: event.value.into(),
-            }),
-            // Other EV_REL events cannot be represented by rdev
-            _ => None,
-        },
         // Other event_codes cannot be represented by rdev,
         // and some never will e.g. EV_SYN
         _ => None,
@@ -305,26 +265,26 @@ pub fn grab<T, S>(callback: T, mut state: S) -> Result<(), GrabError>
 where
     T: Fn(Event, &mut S) -> Option<Event> + 'static,
 {
-    let mut kb = Keyboard::new().ok_or(GrabError::KeyboardError)?;
-    let display = Display::new().ok_or(GrabError::MissingDisplayError)?;
-    let (width, height) = display.get_size().ok_or(GrabError::MissingDisplayError)?;
-    let (current_x, current_y) = display
-        .get_mouse_pos()
-        .ok_or(GrabError::MissingDisplayError)?;
-    let mut x = current_x as f64;
-    let mut y = current_y as f64;
-    let w = width as f64;
-    let h = height as f64;
+    //let mut kb = Keyboard::new().ok_or(GrabError::KeyboardError)?;
+    //let display = Display::new().ok_or(GrabError::MissingDisplayError)?;
+    //let (width, height) = display.get_size().ok_or(GrabError::MissingDisplayError)?;
+    //let (current_x, current_y) = display
+    //    .get_mouse_pos()
+    //    .ok_or(GrabError::MissingDisplayError)?;
+    //let mut x = current_x as f64;
+    //let mut y = current_y as f64;
+    //let w = width as f64;
+    //let h = height as f64;
     filter_map_events(|event| {
-        let event_type = match evdev_event_to_rdev_event(&event, &mut x, &mut y, w, h) {
+        let event_type = match evdev_event_to_rdev_event(&event) {
             Some(rdev_event) => rdev_event,
             // If we can't convert event, simulate it
             None => return (Some(event), GrabStatus::Continue),
         };
-        let name = kb.add(&event_type);
         let rdev_event = Event {
             time: SystemTime::now(),
-            name,
+            // always empty, never used
+            name: Some(""),
             event_type,
         };
         if callback(rdev_event, &mut state).is_some() {
@@ -516,10 +476,7 @@ fn setup_inotify(epoll_fd: RawFd, devices: &[Device]) -> io::Result<Inotify> {
     //Ensure there is space for inotify at last epoll index.
     if devices.len() as u64 >= INOTIFY_DATA {
         eprintln!("number of devices: {}", devices.len());
-        return Err(io::Error::new(
-            io::ErrorKind::Other,
-            "too many device files!",
-        ));
+        return Err(io::Error::other("too many device files!"));
     }
     // Set up inotify to listen for new devices being plugged in
     let inotify = inotify_devices()?;
