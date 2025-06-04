@@ -233,9 +233,7 @@ use crate::macos::{display_size as _display_size, listen as _listen, simulate as
 #[cfg(target_os = "linux")]
 mod linux;
 #[cfg(target_os = "linux")]
-pub use crate::linux::Keyboard;
-#[cfg(target_os = "linux")]
-use crate::linux::{display_size as _display_size, listen as _listen, simulate as _simulate};
+use crate::linux::{display_size as _display_size, listen as _listen};
 
 #[cfg(target_os = "windows")]
 mod windows;
@@ -305,7 +303,8 @@ where
 /// }
 /// ```
 pub fn simulate(event_type: &EventType) -> Result<(), SimulateError> {
-    _simulate(event_type)
+    todo!()
+    //_simulate(event_type)
 }
 
 /// Returns the size in pixels of the main screen.
@@ -330,7 +329,7 @@ pub use crate::macos::grab as _grab;
 #[cfg(feature = "unstable_grab")]
 #[cfg(target_os = "windows")]
 pub use crate::windows::grab as _grab;
-#[cfg(any(feature = "unstable_grab"))]
+#[cfg(feature = "unstable_grab")]
 /// Grabbing global events. In the callback, returning None ignores the event
 /// and returning the event let's it pass. There is no modification of the event
 /// possible here.
@@ -356,12 +355,12 @@ pub use crate::windows::grab as _grab;
 ///     }
 /// }
 /// ```
-#[cfg(any(feature = "unstable_grab"))]
-pub fn grab<T>(callback: T) -> Result<(), GrabError>
+#[cfg(feature = "unstable_grab")]
+pub fn grab<T, S>(callback: T, state: S) -> Result<(), GrabError>
 where
-    T: Fn(Event) -> Option<Event> + 'static,
+    T: Fn(Event, &mut S) -> Option<Event> + 'static,
 {
-    _grab(callback)
+    _grab(callback, state)
 }
 
 #[cfg(test)]
@@ -397,6 +396,22 @@ mod tests {
         let n = keyboard.add(&EventType::KeyRelease(Key::KeyS));
         assert_eq!(n, None);
         keyboard.add(&EventType::KeyRelease(Key::ShiftLeft));
+
+        // CapsLock
+        let char_c = keyboard.add(&EventType::KeyPress(Key::KeyC)).unwrap();
+        assert_eq!(char_c, "c".to_string());
+        keyboard.add(&EventType::KeyPress(Key::CapsLock));
+        keyboard.add(&EventType::KeyRelease(Key::CapsLock));
+        let char_c = keyboard.add(&EventType::KeyPress(Key::KeyC)).unwrap();
+        assert_eq!(char_c, "C".to_string());
+        let n = keyboard.add(&EventType::KeyRelease(Key::KeyS));
+        assert_eq!(n, None);
+        keyboard.add(&EventType::KeyPress(Key::CapsLock));
+        keyboard.add(&EventType::KeyRelease(Key::CapsLock));
+        let char_c = keyboard.add(&EventType::KeyPress(Key::KeyC)).unwrap();
+        assert_eq!(char_c, "c".to_string());
+        let n = keyboard.add(&EventType::KeyRelease(Key::KeyS));
+        assert_eq!(n, None);
 
         // UsIntl layout required
         // let n = keyboard.add(&EventType::KeyPress(Key::Quote));
